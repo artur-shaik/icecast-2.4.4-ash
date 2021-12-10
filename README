@@ -1,3 +1,10 @@
+This repository is the last stable release of Icecast which contains:
+
+* support for `x-forward-ip` header imported from kh branch;
+* using `mount>stream_url` field for YP url value.
+
+Basically, this branch is for reverse proxy support for Icecast.
+
 icecast 2.x - README
 ---------------------------------------------------------------------
 
