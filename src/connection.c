@@ -3,7 +3,7 @@
  * This program is distributed under the GNU General Public License, version 2.
  * A copy of this license is included with this source.
  *
- * Copyright 2000-2004, Jack Moffitt <jack@xiph.org, 
+ * Copyright 2000-2004, Jack Moffitt <jack@xiph.org,
  *                      Michael Smith <msmith@xiph.org>,
  *                      oddsock <oddsock@xiph.org>,
  *                      Karl Heyes <karl@xiph.org>
@@ -142,7 +142,7 @@ static int free_filtered_ip (void*x)
 void connection_initialize(void)
 {
     if (_initialized) return;
-    
+
     thread_spin_create (&_connection_lock);
     thread_mutex_create(&move_clients_mutex);
     thread_rwlock_create(&_source_shutdown_rwlock);
@@ -164,13 +164,13 @@ void connection_initialize(void)
 void connection_shutdown(void)
 {
     if (!_initialized) return;
-    
+
 #ifdef HAVE_OPENSSL
     SSL_CTX_free (ssl_ctx);
 #endif
     if (banned_ip.contents)  avl_tree_free (banned_ip.contents, free_filtered_ip);
     if (allowed_ip.contents) avl_tree_free (allowed_ip.contents, free_filtered_ip);
- 
+
     thread_cond_destroy(&global.shutdown_cond);
     thread_rwlock_destroy(&_source_shutdown_rwlock);
     thread_spin_destroy (&_connection_lock);
@@ -233,13 +233,13 @@ static void get_ssl_certificate (ice_config_t *config)
             ICECAST_LOG_ERROR("Invalid %s - Private key does not match cert public key", config->cert_file);
             break;
         }
-        if (SSL_CTX_set_cipher_list(ssl_ctx, config->cipher_list) <= 0) 
-        { 
-            ICECAST_LOG_WARN("Invalid cipher list: %s", config->cipher_list); 
-        } 
+        if (SSL_CTX_set_cipher_list(ssl_ctx, config->cipher_list) <= 0)
+        {
+            ICECAST_LOG_WARN("Invalid cipher list: %s", config->cipher_list);
+        }
         ssl_ok = 1;
         ICECAST_LOG_INFO("SSL certificate found at %s", config->cert_file);
-        ICECAST_LOG_INFO("SSL using ciphers %s", config->cipher_list); 
+        ICECAST_LOG_INFO("SSL using ciphers %s", config->cipher_list);
         return;
     } while (0);
     ICECAST_LOG_INFO("No SSL capability on any configured ports");
@@ -908,7 +908,7 @@ int connection_complete_source (source_t *source, int response)
 }
 
 
-static int _check_pass_http(http_parser_t *parser, 
+static int _check_pass_http(http_parser_t *parser,
         const char *correctuser, const char *correctpass)
 {
     /* This will look something like "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==" */
@@ -991,7 +991,7 @@ int connection_check_admin_pass(http_parser_t *parser)
     protocol = httpp_getvar (parser, HTTPP_VAR_PROTOCOL);
     if (protocol && strcmp (protocol, "ICY") == 0)
         ret = _check_pass_icy (parser, pass);
-    else 
+    else
         ret = _check_pass_http (parser, user, pass);
     config_release_config();
     return ret;
@@ -1155,12 +1155,33 @@ static void _handle_get_request (client_t *client, char *passed_uri)
         serverhost = listen_sock->bind_address;
         serverport = listen_sock->port;
     }
+    do
+    {
+        const char *hdr = httpp_getvar (client->parser, "x-forwarded-for");
+        xforward_entry *xforward = config->xforward;
+        if (hdr == NULL) break;
+        while (xforward)
+        {
+            if (strcmp (xforward->ip, client->con->ip) == 0)
+            {
+                int len = strcspn (hdr, ",") + 1;
+                char *ip = malloc (len);
+
+                snprintf (ip, len, "%s",  hdr);
+                free (client->con->ip);
+                client->con->ip = ip;
+                ICECAST_LOG_DEBUG("x-forward match for %s, using %s instead", xforward->ip, ip);
+                break;
+            }
+            xforward = xforward->next;
+        }
+    } while (0);
     alias = config->aliases;
 
     /* there are several types of HTTP GET clients
     ** media clients, which are looking for a source (eg, URI = /stream.ogg)
     ** stats clients, which are looking for /admin/stats.xml
-    ** and directory server authorizers, which are looking for /GUID-xxxxxxxx 
+    ** and directory server authorizers, which are looking for /GUID-xxxxxxxx
     ** (where xxxxxx is the GUID in question) - this isn't implemented yet.
     ** we need to handle the latter two before the former, as the latter two
     ** aren't subject to the limits.
@@ -1214,7 +1235,7 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
             source_password = strdup (mountinfo->password);
         else
         {
-            if (config->source_password) 
+            if (config->source_password)
                 source_password = strdup (config->source_password);
             else
                 source_password = NULL;
@@ -1389,7 +1410,7 @@ static void _handle_connection(void)
                 }
 
                 free(uri);
-            } 
+            }
             else
             {
                 free (node);
@@ -1438,7 +1459,7 @@ int connection_setup_sockets (ice_config_t *config)
     count = 0;
     global.serversock = calloc (config->listen_sock_count, sizeof (sock_t));
 
-    listener = config->listen_sock; 
+    listener = config->listen_sock;
     prev = &config->listen_sock;
     while (listener)
     {

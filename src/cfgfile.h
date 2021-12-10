@@ -138,6 +138,12 @@ typedef struct _listener_t {
     int ssl;
 } listener_t;
 
+typedef struct _xforward_entry
+{
+    char *ip;
+    struct _xforward_entry *next;
+} xforward_entry;
+
 typedef struct ice_config_tag {
     char *config_filename;
 
@@ -212,6 +218,8 @@ typedef struct ice_config_tag {
     int    yp_url_timeout[MAX_YP_DIRECTORIES];
     int    yp_touch_interval[MAX_YP_DIRECTORIES];
     int num_yp_directories;
+
+    xforward_entry *xforward;
 } ice_config_t;
 
 typedef struct {

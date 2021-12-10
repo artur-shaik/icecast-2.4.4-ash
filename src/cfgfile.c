@@ -3,7 +3,7 @@
  * This program is distributed under the GNU General Public License, version 2.
  * A copy of this license is included with this source.
  *
- * Copyright 2000-2004, Jack Moffitt <jack@xiph.org, 
+ * Copyright 2000-2004, Jack Moffitt <jack@xiph.org,
  *                      Michael Smith <msmith@xiph.org>,
  *                      oddsock <oddsock@xiph.org>,
  *                      Karl Heyes <karl@xiph.org>
@@ -30,7 +30,7 @@
 #include "cfgfile.h"
 #include "refbuf.h"
 #include "client.h"
-#include "logging.h" 
+#include "logging.h"
 
 #define CATMODULE "CONFIG"
 #define CONFIG_DEFAULT_LOCATION "Earth"
@@ -85,13 +85,13 @@ static void _parse_directory(xmlDocPtr doc, xmlNodePtr node, ice_config_t *c);
 static void _parse_paths(xmlDocPtr doc, xmlNodePtr node, ice_config_t *c);
 static void _parse_logging(xmlDocPtr doc, xmlNodePtr node, ice_config_t *c);
 static void _parse_security(xmlDocPtr doc, xmlNodePtr node, ice_config_t *c);
-static void _parse_authentication(xmlDocPtr doc, xmlNodePtr node, 
+static void _parse_authentication(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *c);
 static void _parse_http_headers(xmlDocPtr doc, xmlNodePtr node,
         ice_config_http_header_t **http_headers);
 static void _parse_relay(xmlDocPtr doc, xmlNodePtr node, ice_config_t *c);
 static void _parse_mount(xmlDocPtr doc, xmlNodePtr node, ice_config_t *c);
-static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node, 
+static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *c);
 static void _add_server(xmlDocPtr doc, xmlNodePtr node, ice_config_t *c);
 
@@ -272,6 +272,14 @@ void config_clear(ice_config_t *c)
     if (c->group) xmlFree(c->group);
     if (c->mimetypes_fn) xmlFree (c->mimetypes_fn);
 
+    while (c->xforward)
+    {
+        struct _xforward_entry *e = c->xforward;
+        c->xforward = e->next;
+        free (e->ip);
+        free (e);
+    }
+
     while ((c->listen_sock = config_clear_listener (c->listen_sock)))
         ;
 
@@ -337,7 +345,7 @@ int config_parse_file(const char *filename, ice_config_t *configuration)
     xmlNodePtr node;
 
     if (filename == NULL || strcmp(filename, "") == 0) return CONFIG_EINSANE;
-    
+
     doc = xmlParseFile(filename);
     if (doc == NULL) {
         return CONFIG_EPARSE;
@@ -450,7 +458,7 @@ static void _set_defaults(ice_config_t *configuration)
     configuration->burst_size = CONFIG_DEFAULT_BURST_SIZE;
 }
 
-static void _parse_root(xmlDocPtr doc, xmlNodePtr node, 
+static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
     char *tmp;
@@ -510,7 +518,7 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
                 ICECAST_LOG_WARN("<port> must not be empty.");
             }
         } else if (xmlStrcmp (node->name, XMLSTR("bind-address")) == 0) {
-            if (configuration->listen_sock->bind_address) 
+            if (configuration->listen_sock->bind_address)
                 xmlFree(configuration->listen_sock->bind_address);
             configuration->listen_sock->bind_address = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("master-server")) == 0) {
@@ -585,7 +593,7 @@ static void _parse_root(xmlDocPtr doc, xmlNodePtr node,
   }
 }
 
-static void _parse_limits(xmlDocPtr doc, xmlNodePtr node, 
+static void _parse_limits(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
     char *tmp;
@@ -635,14 +643,14 @@ static void _parse_limits(xmlDocPtr doc, xmlNodePtr node,
     } while ((node = node->next));
 }
 
-static void _parse_mount(xmlDocPtr doc, xmlNodePtr node, 
+static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
     char *tmp;
     mount_proxy *mount = calloc(1, sizeof(mount_proxy));
     mount_proxy *current = configuration->mounts;
     mount_proxy *last=NULL;
-    
+
     /* default <mount> settings */
     mount->mounttype = MOUNT_TYPE_NORMAL;
     mount->max_listeners = -1;
@@ -1007,12 +1015,12 @@ static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
         }
         else if (xmlStrcmp (node->name, XMLSTR("shoutcast-mount")) == 0) {
             if (listener->shoutcast_mount) xmlFree (listener->shoutcast_mount);
-            listener->shoutcast_mount = (char *)xmlNodeListGetString(doc, 
+            listener->shoutcast_mount = (char *)xmlNodeListGetString(doc,
                     node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("bind-address")) == 0) {
             if (listener->bind_address) xmlFree (listener->bind_address);
-            listener->bind_address = (char *)xmlNodeListGetString(doc, 
+            listener->bind_address = (char *)xmlNodeListGetString(doc,
                     node->xmlChildrenNode, 1);
         }
         else if (xmlStrcmp (node->name, XMLSTR("so-sndbuf")) == 0) {
@@ -1056,7 +1064,7 @@ static void _parse_authentication(xmlDocPtr doc, xmlNodePtr node,
             else {
                 if (configuration->source_password)
                     xmlFree(configuration->source_password);
-                configuration->source_password = 
+                configuration->source_password =
                     (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
             }
         } else if (xmlStrcmp (node->name, XMLSTR("admin-password")) == 0) {
@@ -1097,13 +1105,13 @@ static void _parse_directory(xmlDocPtr doc, xmlNodePtr node,
         if (xmlIsBlankNode(node)) continue;
 
         if (xmlStrcmp (node->name, XMLSTR("yp-url")) == 0) {
-            if (configuration->yp_url[configuration->num_yp_directories]) 
+            if (configuration->yp_url[configuration->num_yp_directories])
                 xmlFree(configuration->yp_url[configuration->num_yp_directories]);
-            configuration->yp_url[configuration->num_yp_directories] = 
+            configuration->yp_url[configuration->num_yp_directories] =
                 (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("yp-url-timeout")) == 0) {
             tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
-            configuration->yp_url_timeout[configuration->num_yp_directories] = 
+            configuration->yp_url_timeout[configuration->num_yp_directories] =
                 atoi(tmp);
             if (tmp) xmlFree(tmp);
         } else if (xmlStrcmp (node->name, XMLSTR("server")) == 0) {
@@ -1169,7 +1177,7 @@ static void _parse_paths(xmlDocPtr doc, xmlNodePtr node,
                 ICECAST_LOG_WARN("<adminroot> must not be empty.");
                 continue;
             }
-            if (configuration->adminroot_dir) 
+            if (configuration->adminroot_dir)
                 xmlFree(configuration->adminroot_dir);
             configuration->adminroot_dir = (char *)temp;
             if(configuration->adminroot_dir[strlen(configuration->adminroot_dir)-1] == '/')
@@ -1209,6 +1217,15 @@ static void _parse_paths(xmlDocPtr doc, xmlNodePtr node,
                 last->next = alias;
             else
                 configuration->aliases = alias;
+        } else if (xmlStrcmp (node->name, XMLSTR("x-forwarded-for")) == 0) {
+            xforward_entry **p = &configuration->xforward, *e = calloc (1, sizeof(struct _xforward_entry));
+
+            e->ip = (char*)xmlNodeListGetString (node->doc, node->xmlChildrenNode, 1);
+            if (e->ip)
+            {
+                e->next = *p;
+                *p = e;
+            }
         }
     } while ((node = node->next));
 }
@@ -1288,7 +1305,7 @@ static void _parse_security(xmlDocPtr doc, xmlNodePtr node,
    } while ((node = node->next));
 }
 
-static void _add_server(xmlDocPtr doc, xmlNodePtr node, 
+static void _add_server(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
     ice_config_dir_t *dirnode, *server;
@@ -1299,13 +1316,13 @@ static void _add_server(xmlDocPtr doc, xmlNodePtr node,
     server->touch_interval = configuration->touch_interval;
     server->host = NULL;
     addnode = 0;
-    
+
     do {
         if (node == NULL) break;
         if (xmlIsBlankNode(node)) continue;
 
         if (xmlStrcmp (node->name, XMLSTR("host")) == 0) {
-            server->host = (char *)xmlNodeListGetString(doc, 
+            server->host = (char *)xmlNodeListGetString(doc,
                     node->xmlChildrenNode, 1);
             addnode = 1;
         } else if (xmlStrcmp (node->name, XMLSTR("touch-interval")) == 0) {
@@ -1322,10 +1339,10 @@ static void _add_server(xmlDocPtr doc, xmlNodePtr node,
             configuration->dir_list = server;
         } else {
             while (dirnode->next) dirnode = dirnode->next;
-            
+
             dirnode->next = server;
         }
-        
+
         server = NULL;
         addnode = 0;
     }
@@ -1457,7 +1474,7 @@ mount_proxy *config_find_mount (ice_config_t *config, const char *mount, mount_t
     return mountinfo;
 }
 
-/* Helper function to locate the configuration details of the listening 
+/* Helper function to locate the configuration details of the listening
  * socket
  */
 listener_t *config_get_listen_sock (ice_config_t *config, connection_t *con)
