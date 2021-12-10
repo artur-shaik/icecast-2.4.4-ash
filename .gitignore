@@ -1,0 +1,59 @@
+stamp-h1
+src/icecast
+src/.deps
+src/.libs
+config.h
+conf/*.dist
+*.o
+.DS_Store
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache
+compile
+config.cache
+config.guess
+config.sub
+config.h.in
+config.log
+config.status
+configure
+depcomp
+install-sh
+libtool
+ltconfig
+ltmain.sh
+missing
+mkinstalldirs
+*.tar.gz
+config.h.in~
+/build-aux
+
+# Ignore test output files
+/tests/*.log
+/tests/*.trs
+
+# Ignore test build artifacts
+/tests/*.lo
+/tests/*.la
+/tests/.deps/
+/tests/.libs/
+/tests/ctest_*.test
+
+# Ignore test output files
+/src/ctest_*.log
+/src/ctest_*.trs
+/src/test-suite.log
+
+# Ignore test build artifacts
+/src/tests/*.lo
+/src/libice_ctest.la
+/src/ctest_*.test
+/src/tests/.deps/
+/src/tests/.dirstamp
+
+# Ignore auxiliary files
+/tap-driver.sh
+
+# Ignore vim swap files
+.*.swp
