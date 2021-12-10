@@ -593,7 +593,6 @@ static ypdata_t *create_yp_entry (const char *mount)
             if (s) url = s;
             snprintf (url, ret, "%s", mountproxy->stream_url);
         }
-        ICECAST_LOG_DEBUG("YP stram url: %s", url);
 
         if (mountproxy && mountproxy->cluster_password)
             add_yp_info (yp, mountproxy->cluster_password, YP_CLUSTER_PASSWORD);
