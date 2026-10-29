@@ -586,12 +586,27 @@ static ypdata_t *create_yp_entry (const char *mount)
             break;
         config = config_get_config();
         mountproxy = config_find_mount (config, mount, MOUNT_TYPE_NORMAL);
-        ret = snprintf (url, len, "%s", mountproxy->stream_url);
+        /* The listen URL is where players find the stream: yp-listen-url of
+         * the mount, else its stream-url (older configs of this fork), else
+         * the stock http://hostname:port/mount. The directory keeps listen
+         * URLs unique, so two mounts with the same stream-url (the site)
+         * end in "Duplicate stream": set yp-listen-url for each of them. */
+        if (mountproxy && mountproxy->yp_listen_url)
+            ret = snprintf (url, len, "%s", mountproxy->yp_listen_url);
+        else if (mountproxy && mountproxy->stream_url)
+            ret = snprintf (url, len, "%s", mountproxy->stream_url);
+        else
+            ret = snprintf (url, len, "http://%s:%d%s", config->hostname, config->port, mount);
         if (ret >= (signed)len)
         {
             s = realloc (url, ++ret);
             if (s) url = s;
-            snprintf (url, ret, "%s", mountproxy->stream_url);
+            if (mountproxy && mountproxy->yp_listen_url)
+                snprintf (url, ret, "%s", mountproxy->yp_listen_url);
+            else if (mountproxy && mountproxy->stream_url)
+                snprintf (url, ret, "%s", mountproxy->stream_url);
+            else
+                snprintf (url, ret, "http://%s:%d%s", config->hostname, config->port, mount);
         }
 
         if (mountproxy && mountproxy->cluster_password)

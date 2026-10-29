@@ -192,6 +192,7 @@ static void config_clear_mount (mount_proxy *mount)
     if (mount->stream_name)     xmlFree (mount->stream_name);
     if (mount->stream_description)  xmlFree (mount->stream_description);
     if (mount->stream_url)      xmlFree (mount->stream_url);
+    if (mount->yp_listen_url)   xmlFree (mount->yp_listen_url);
     if (mount->stream_genre)    xmlFree (mount->stream_genre);
     if (mount->bitrate)         xmlFree (mount->bitrate);
     if (mount->type)            xmlFree (mount->type);
@@ -786,6 +787,9 @@ static void _parse_mount(xmlDocPtr doc, xmlNodePtr node,
                     doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("stream-url")) == 0) {
             mount->stream_url = (char *)xmlNodeListGetString(
+                    doc, node->xmlChildrenNode, 1);
+        } else if (xmlStrcmp (node->name, XMLSTR("yp-listen-url")) == 0) {
+            mount->yp_listen_url = (char *)xmlNodeListGetString(
                     doc, node->xmlChildrenNode, 1);
         } else if (xmlStrcmp (node->name, XMLSTR("genre")) == 0) {
             mount->stream_genre = (char *)xmlNodeListGetString(
@@ -1406,6 +1410,8 @@ static void merge_mounts(mount_proxy * dst, mount_proxy * src) {
     	dst->stream_description = (char*)xmlStrdup((xmlChar*)src->stream_description);
     if (!dst->stream_url)
     	dst->stream_url = (char*)xmlStrdup((xmlChar*)src->stream_url);
+    if (!dst->yp_listen_url)
+    	dst->yp_listen_url = (char*)xmlStrdup((xmlChar*)src->yp_listen_url);
     if (!dst->stream_genre)
     	dst->stream_genre = (char*)xmlStrdup((xmlChar*)src->stream_genre);
     if (!dst->bitrate)

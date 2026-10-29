@@ -111,6 +111,7 @@ typedef struct _mount_proxy {
     char *stream_name;
     char *stream_description;
     char *stream_url;
+    char *yp_listen_url; /* listen URL sent to the YP directory */
     char *stream_genre;
     char *bitrate;
     char *type;
